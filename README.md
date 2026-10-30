@@ -55,6 +55,7 @@ Optional repository variables: `COMPOSER_ENV`, `COMPOSER_REGION` (defaults are s
 ### 3. Composer environment
 
 - In the Composer environment's PyPI packages configuration, install `apache-airflow-providers-snowflake`.
+- In the Airflow UI for Composer, open **Admin > Variables** and add a variable with key `NEWS_API_KEY` and value set to your NewsAPI API key. The fetch task reads the key from this Airflow Variable; it is separate from the Snowflake connection.
 - In the Airflow UI for Composer, open **Admin > Connections** and create the Snowflake connection with ID `snowflake_conn`, which is the ID used by the DAG. Do not commit credentials to the repo.
 - To store Airflow connection credentials in Google Secret Manager, configure Secret Manager as the Airflow secrets backend and enable billing for the Google Cloud project. A free-tier account without billing enabled cannot use this setup; use Composer's Airflow Connections UI if you are not configuring Secret Manager.
 
@@ -79,4 +80,5 @@ A new environment gets a new DAG bucket. Re-grant **Storage Object Admin** to `g
 | Authentication fails | `WIF_PROVIDER` uses the project number; repo name in the condition matches exactly |
 | Sync fails | `github-deployer` has access to the DAG bucket |
 | Broken DAG in Airflow | Open the error in the UI; usually a missing PyPI package |
+| Fetch task says `Variable NEWS_API_KEY does not exist` | Add `NEWS_API_KEY` under **Admin > Variables** in the Composer Airflow UI, then clear and rerun the failed task |
 | Snowflake task fails | Confirm the `snowflake_conn` Airflow connection, external stage, file format, and Snowflake permissions |

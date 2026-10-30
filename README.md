@@ -7,6 +7,7 @@ News API pipeline using Airflow (Cloud Composer), Google Cloud Storage, and Snow
 ```
 .github/workflows/deploy-dags.yml   # CI/CD workflow
 airflow_dags22/                     # Airflow DAGs
+screenshots/                        # Pipeline evidence, including the uploaded Parquet file in GCS
 ```
 
 ## Pipeline overview
@@ -14,7 +15,7 @@ airflow_dags22/                     # Airflow DAGs
 The `newsapi_data_processing_dag` DAG runs daily without backfilling past runs. Its tasks execute in this order:
 
 1. **Fetch news:** The `newsapi_data_to_gcs` task reads the NewsAPI key from the Airflow Variable `NEWS_API_KEY`, requests English articles matching `technology` from the previous day, cleans the article fields, and saves the results as a timestamped Parquet file.
-2. **Upload to Google Cloud Storage:** The Parquet file is uploaded to `gs://snowflake-projects-test-gds/news_data_analysis/`. The local copy is removed after a successful upload.
+2. **Upload to Google Cloud Storage:** The Parquet file is uploaded to `gs://gcs_bucket_for_snf/news_data_analysis/`. The local copy is removed after a successful upload. A screenshot of the uploaded file is saved in [`screenshots/`](./screenshots/).
 3. **Create the Snowflake table:** The `snowflake_create_table` task infers the table schema from files in the configured external stage and creates `news_api.PUBLIC.news_api_data` if it does not already exist.
 4. **Load the data:** The `snowflake_copy_from_stage` task copies staged Parquet data into `news_api.PUBLIC.news_api_data`, matching columns without regard to case.
 5. **Build summaries:** After the load succeeds, two tasks run in parallel. `summary_news` contains article counts and date ranges by source; `author_activity` contains article counts and distinct source counts by author.
@@ -67,6 +68,18 @@ Optional repository variables: `COMPOSER_ENV`, `COMPOSER_REGION` (defaults are s
 4. DAGs appear in the Airflow UI within a couple of minutes.
 
 To deploy manually: GitHub > Actions > Deploy DAGs > Run workflow.
+
+## Pipeline screenshots
+
+The screenshots below show a successful Airflow DAG run and the resulting Snowflake summary table.
+
+### Airflow DAG run
+
+![Airflow DAG tasks completed successfully](./screenshots/airflow-dag-success.png)
+
+### Snowflake summary results
+
+![Snowflake summary query results](./screenshots/snowflake-summary-results.png)
 
 ## Recreating the Composer environment
 

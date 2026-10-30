@@ -355,7 +355,7 @@ def fetch_news_data(search_query: str = "technology", days_back: int = 1) -> str
         local_file_path = save_dataframe_to_parquet(df, filename)
         
         # Upload to GCS
-        bucket_name = 'snowflake-projects-test-gds'
+        bucket_name = 'gcs_bucket_for_snf'  # Replace with your actual GCS bucket name
         destination_blob_name = f'news_data_analysis/{filename}'
         
         upload_success = upload_to_gcs(bucket_name, destination_blob_name, local_file_path)
